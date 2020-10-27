@@ -1,0 +1,8 @@
+[submodule "content/eep"]
+	path = content/eep
+	url = git@github.com:erlang/eep
+	branch = master
+[submodule "content/blog"]
+	path = content/blog
+	url = git@github.com:erlang/erlang.github.io
+	branch = master

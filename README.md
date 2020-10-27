@@ -1,63 +1,49 @@
 # Erlang.org website
+
 Source code for the Erlang.org website.
 
-## Setting up Erlang.org locally
+The erlang.org website is written using typescript and
+[next.js](http://www.nextjs.org) as a static site generator (SSG). The content of the website can be customized by editing the files in
+[content](/content).
 
-Erlang.org uses [Cowboy](https://github.com/ninenines/cowboy) for web server support and [ErlyDTL](https://github.com/erlydtl/erlydtl) for rendering the web pages. It uses [sumo_db](https://github.com/inaka/sumo_db) to connect to a PostgreSQL database.
+New blogposts, releases and EEPs are automatically pulled from their respective repositories.
 
-### Setting up Erlang.org using docker
+## GITHUB_TOKEN
 
-Run:
+Since github rate-limits the REST API requests that you are allowed
+to make from annonymous connections it is recommended that you set the
+`GITHUB_TOKEN` environment variable in your shell to a valid [Personal Access Token](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token).
 
-   docker-compose up
+## Develop
 
-Then connect to http://localhost:8080 and enjoy.
+The easiest way to setup a dev environment is to just use the makefile
+and call `make`. This will update the correct git submodules and start
+nodejs.
 
-### Erlang/OTP
+If you want to run node directly instead, you can run `make setup` and
+then `npm run dev`.
 
-Use Erlang/OTP 18.3. Follow the instructions on https://github.com/kerl/kerl to install Erlang/OTP.
+## Deploy
 
-### Configure ops.config
+All the pages are statically generated. To do that you can run `make export`
+which will output the webpages to the out folder.
 
-Edit and rename the file `rel/ops.config.template` to `rel/ops.config`. It contains the configuration information and tells the application which port (by default `8080`) to host the website on and which database to pull information from.
+## Docker
 
-### Database 
-By default, Erlang.org connects to a PostgresSQL database called `erlang_org`, using the username `postgres` and password `postgres`. 
+There are dockerfiles that can be used to setup an nginx image that will
+serve erlang-org at [http://localhost:3000]. To build run `make docker` and
+to build and run do `make docker_run`.
 
-Create a database `erlang_org`:
-```sql
-CREATE DATABASE erlang_org;
-```
-Import the sample data:
-```
-$ psql erlang_org < erlang_org_data
-```
+## TODO
 
-### Running Erlang.org
-Run the following command to start the server:
-```
-$ make run
-```
-The website will be available at http://localhost:8080.
-
-### Templates
-
-The templates for rendering the web pages are located at `templates/*.dtl`. Learn more about the [ErlyDTL](https://github.com/erlydtl/erlydtl/wiki) templates at https://github.com/erlydtl/erlydtl/wiki.
-
-### Project Structure
-
-Since this project is built with [sumo_db](http://github.com/inaka/sumo_db), it's code structure uses the _repository pattern_. Therefore, the code is organized in the following folders:
-
-* **handlers:** In it you will find handlers for cowboy. For example, `erlang_docs_handler` is the one used to serve the `/docs` page.
-* **models:** In this folder you will find _sumo_db_ models and repos. For each entity in the system you'll find two modules:
-  - one of them represents the Abstract Data Type that models the entity (e.g. `erlorg_articles` contains all the functions that allow you to manipulate entities with type `erlorg_articles:article()`, but there is no business logic in it).
-  - the other one (with suffix `_repo`) contains the business logic associated with the entity. For example, in `erlorg_articles_repo` you'll find functions to _create_, _fetch_, _list_, etc. entities with type `erlorg_articles:article()`. These functions only manipulate the internal data for those entities using the functions in the `erlorg_articles` module. And they talk to the database using functions in the `sumo` model, like `sumo:persist/2` to store objects.
-* **stores:** In this folder you will find _sumo_db_ stores. This is the place where database specific logic is written. Functions that are specific to the underlying persistence tool we're using (in this case postgreSQL) and not generic are written in `erlorg_store_pgsql`.
-* **utils:** In this folder we have utility functions to deal with some non-sumo-specific datatypes like binaries, datetimes and cowboy requests.
-
-For more documentation on SumoDB, you can check its [hex.pm page](http://hex.pm/packages/sumo_db) and if you want to contribute to this project and you are unsure about where to put your code or how to write it don't hesitate to contact [Inaka](http://inaka.net) through their [public hipchat room](http://inaka.net/hipchat).
-
----
+This this not a complete migration yet. This still needs to be done:
+* RSS feeds (news, releases, blog)
+* Github actions auto-deploy
+* Better downloads integrated with versions tree
+* Review HTML and CSS styling
+ * use sass
+ * update bootstrap version
+* Migrate all news to markdown
 
 ## License
 

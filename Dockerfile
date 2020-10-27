@@ -1,11 +1,21 @@
-FROM erlang:18.3.4.11
+FROM nginx
 
-RUN apt-get update && apt-get -y upgrade && apt-get install -y rsync
+RUN apt-get update && apt-get -y upgrade && \
+    apt-get -y install nodejs git build-essential
 
-RUN mkdir -p /build/erlorg
-WORKDIR /build/erlorg
-ADD . /build/erlorg
+RUN curl https://www.npmjs.com/install.sh | sh
 
-RUN cp rel/docker.config.template rel/ops.config && make erlang-mk; make distclean; make rel
+WORKDIR /buildroot/
 
-CMD bash -c "sleep 20 && _rel/erlorg/bin/erlorg foreground"
+ADD package.json /tmp/package.json
+RUN cd /tmp && npm install
+RUN mkdir -p /opt/app && cp -a /tmp/node_modules /buildroot/
+
+COPY . /buildroot/
+
+ARG GITHUB_TOKEN
+ENV GITHUB_TOKEN=${GITHUB_TOKEN}
+
+RUN echo ${GITHUB_TOKEN}
+
+RUN make export && cp -r out/* /usr/share/nginx/html/
