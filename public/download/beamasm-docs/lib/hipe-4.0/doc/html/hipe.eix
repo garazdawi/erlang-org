@@ -1,0 +1,6 @@
+%% 
+%% Search data file for hipe 4.0
+%% generated september 16, 2020
+%% 
+{"HiPE_app.html", {app, "hipe"}, ["HiPE"]}.
+{notused, application, ["hipe"]}.
